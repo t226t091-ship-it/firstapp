@@ -1,1 +1,275 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Anime List - 視聴管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&display=swap');
+        
+        body {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            background-color: #fff5f7;
+        }
+        
+        .anime-card {
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .anime-card:hover {
+            transform: translateY(-5px) scale(1.01);
+            box-shadow: 0 10px 20px rgba(255, 107, 107, 0.1);
+        }
 
+        .header-bg {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            border-radius: 0 0 40px 40px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b6b, #ff8787);
+            color: white;
+            transition: all 0.3s;
+            border-bottom: 4px solid #fa5252;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(2px);
+            border-bottom-width: 2px;
+        }
+
+        .btn-primary:active {
+            transform: translateY(4px);
+            border-bottom-width: 0px;
+        }
+
+        .input-glow:focus {
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.2);
+            border-color: #ff8787;
+        }
+
+        /* 星評価のスタイル */
+        .star-rating {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+        }
+
+        .star-rating input {
+            display: none;
+        }
+
+        .star-rating label {
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #ddd;
+            transition: color 0.2s;
+        }
+
+        .star-rating label:hover,
+        .star-rating label:hover ~ label,
+        .star-rating input:checked ~ label {
+            color: #ffcc33;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .floating-icon {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* 感想欄のスクロールバーを可愛く */
+        textarea::-webkit-scrollbar {
+            width: 8px;
+        }
+        textarea::-webkit-scrollbar-track {
+            background: #fff5f7;
+            border-radius: 10px;
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background: #ffc9d1;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="pb-20">
+    <header class="header-bg pt-12 pb-16 px-6 text-center shadow-lg mb-10">
+        <div class="inline-block relative">
+            <span class="text-5xl mb-4 block floating-icon">📺</span>
+            <h1 class="text-4xl font-extrabold text-white mb-2 drop-shadow-md tracking-wider">
+                My Anime <span class="text-pink-100">Watchlist</span>
+            </h1>
+            <div class="h-1 w-24 bg-white/50 mx-auto rounded-full"></div>
+        </div>
+        <p class="text-white/90 mt-4 font-medium italic">大好きを、もっと増やそう！✨</p>
+    </header>
+
+    <div class="max-w-2xl mx-auto px-4">
+        <!-- 入力フォーム -->
+        <div class="bg-white rounded-3xl p-8 shadow-xl shadow-pink-100/50 border border-pink-50 mb-8 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10">
+                <svg width="60" height="60" viewBox="0 0 100 100"><circle cx="10" cy="10" r="5" fill="#ff6b6b"/><circle cx="30" cy="10" r="5" fill="#ff6b6b"/><circle cx="50" cy="10" r="5" fill="#ff6b6b"/></svg>
+            </div>
+
+            <div class="flex flex-col gap-5">
+                <div>
+                    <label class="text-slate-600 font-bold ml-1 text-sm block mb-2">作品を追加する</label>
+                    <input type="text" id="animeTitle" placeholder="どのアニメを見る？" class="w-full p-4 border-2 border-slate-100 rounded-2xl focus:outline-none input-glow bg-slate-50/50 transition-all">
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-slate-600 font-bold ml-1 text-sm block mb-2">ステータス</label>
+                        <div class="relative">
+                            <select id="animeStatus" class="w-full appearance-none p-4 border-2 border-slate-100 rounded-2xl focus:outline-none input-glow bg-slate-50/50 transition-all font-bold text-slate-700">
+                                <option value="計画中">📝 これから見たい</option>
+                                <option value="視聴中">✨ 今見てる！</option>
+                                <option value="完了">💖 見終わった</option>
+                            </select>
+                            <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">▼</div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-slate-600 font-bold ml-1 text-sm block mb-2">評価</label>
+                        <div class="star-rating p-2">
+                            <input type="radio" id="star5" name="rating" value="5"><label for="star5">★</label>
+                            <input type="radio" id="star4" name="rating" value="4"><label for="star4">★</label>
+                            <input type="radio" id="star3" name="rating" value="3"><label for="star3">★</label>
+                            <input type="radio" id="star2" name="rating" value="2"><label for="star2">★</label>
+                            <input type="radio" id="star1" name="rating" value="1"><label for="star1">★</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-slate-600 font-bold ml-1 text-sm block mb-2">一言感想</label>
+                    <textarea id="animeComment" placeholder="面白かったところは？（スキップOK！）" rows="2" class="w-full p-4 border-2 border-slate-100 rounded-2xl focus:outline-none input-glow bg-slate-50/50 transition-all resize-none"></textarea>
+                </div>
+
+                <button onclick="addAnime()" class="btn-primary w-full py-4 rounded-2xl font-black text-lg shadow-lg mt-2">追加！</button>
+            </div>
+        </div>
+
+        <div id="listContainer" class="space-y-4">
+            <!-- JavaScriptでここにリストが追加されます -->
+        </div>
+
+        <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-white text-pink-500 border-2 border-pink-200 px-8 py-4 rounded-full font-bold shadow-2xl opacity-0 pointer-events-none transition-all duration-300 transform translate-y-4">
+            追加したよ！✨
+        </div>
+    </div>
+
+    <script>
+        let animeList = [
+            { id: 1, title: "葬送のフリーレン", status: "視聴中", rating: 5, comment: "魔法の描写が綺麗だし、時間の流れを感じる素敵な物語！" },
+            { id: 2, title: "サンプルのアニメ", status: "完了", rating: 3, comment: "ラストシーンが熱かった！" }
+        ];
+
+        function getStars(count) {
+            let stars = "";
+            for (let i = 0; i < 5; i++) {
+                stars += i < count ? '<span class="text-yellow-400">★</span>' : '<span class="text-slate-200">★</span>';
+            }
+            return stars;
+        }
+
+        function renderList() {
+            const container = document.getElementById('listContainer');
+            container.innerHTML = '';
+
+            animeList.forEach(anime => {
+                const card = document.createElement('div');
+                card.className = "anime-card bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col gap-4 relative";
+                
+                let statusStyle = "";
+                switch(anime.status) {
+                    case "計画中": statusStyle = "bg-amber-50 text-amber-500 border-amber-100"; break;
+                    case "視聴中": statusStyle = "bg-blue-50 text-blue-500 border-blue-100"; break;
+                    case "完了": statusStyle = "bg-pink-50 text-pink-500 border-pink-100"; break;
+                }
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex flex-col gap-1">
+                            <h3 class="font-black text-slate-700 text-lg leading-tight">${anime.title}</h3>
+                            <div class="flex items-center gap-3 mt-1">
+                                <span class="text-[10px] font-bold px-3 py-0.5 rounded-full border ${statusStyle}">
+                                    ${anime.status}
+                                </span>
+                                <div class="text-xs">
+                                    ${getStars(anime.rating)}
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="deleteAnime(${anime.id})" class="p-2 text-slate-300 hover:text-red-400 hover:bg-red-50 rounded-xl transition-all">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                    </div>
+                    ${anime.comment ? `
+                        <div class="bg-pink-50/30 p-4 rounded-2xl border-l-4 border-pink-200">
+                            <p class="text-sm text-slate-600 leading-relaxed italic">「 ${anime.comment} 」</p>
+                        </div>
+                    ` : ''}
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function addAnime() {
+            const titleInput = document.getElementById('animeTitle');
+            const statusInput = document.getElementById('animeStatus');
+            const commentInput = document.getElementById('animeComment');
+            const ratingInput = document.querySelector('input[name="rating"]:checked');
+
+            if (!titleInput.value.trim()) {
+                showToast("タイトルを入力してね！🍡");
+                return;
+            }
+
+            const newAnime = {
+                id: Date.now(),
+                title: titleInput.value,
+                status: statusInput.value,
+                rating: ratingInput ? parseInt(ratingInput.value) : 0,
+                comment: commentInput.value.trim()
+            };
+
+            animeList.unshift(newAnime);
+            
+            // リセット
+            titleInput.value = '';
+            commentInput.value = '';
+            if (ratingInput) ratingInput.checked = false;
+            
+            renderList();
+            showToast("感想も一緒に保存したよ！🌸");
+        }
+
+        function deleteAnime(id) {
+            animeList = animeList.filter(a => a.id !== id);
+            renderList();
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.innerText = message;
+            toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
+                toast.classList.remove('opacity-100', 'translate-y-0');
+            }, 2500);
+        }
+
+        window.onload = renderList;
+    </script>
+</body>
+</html>
